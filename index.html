@@ -3,128 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kutty AI | New Version</title>
+    <title>Kutty AI | Multilingual Friend</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --pink: #ff4d6d; --soft-pink: #fff0f3; --user-bubble: #ff85a1; }
-        body { font-family: 'Poppins', sans-serif; background: var(--soft-pink); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
-        
-        .container { width: 100%; max-width: 400px; height: 90vh; background: white; border-radius: 30px; box-shadow: 0 20px 40px rgba(0,0,0,0.1); display: flex; flex-direction: column; position: relative; overflow: hidden; }
-        
-        .header { padding: 20px; text-align: center; border-bottom: 1px solid #ffe5ec; }
-        .header h1 { font-family: 'Dancing Script', cursive; margin: 0; color: var(--pink); font-size: 2.2rem; }
-
-        #chat-box { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #fafafa; }
-        
-        .msg { max-width: 80%; padding: 12px 16px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; }
-        .ai { background: white; color: #333; align-self: flex-start; border: 1px solid #eee; border-bottom-left-radius: 5px; }
-        .user { background: var(--user-bubble); color: white; align-self: flex-end; border-bottom-right-radius: 5px; }
-
-        .loader { font-size: 0.8rem; color: #999; display: none; margin-left: 20px; margin-bottom: 10px; }
-
-        .input-area { padding: 20px; display: flex; gap: 10px; background: white; }
-        input { flex: 1; border: 2px solid #fff0f3; border-radius: 25px; padding: 12px 20px; outline: none; transition: 0.3s; }
-        input:focus { border-color: var(--pink); }
-        button { background: var(--pink); color: white; border: none; width: 50px; height: 50px; border-radius: 50%; cursor: pointer; font-size: 1.2rem; }
-
-        /* Setup Overlay */
-        #setup { position: absolute; inset: 0; background: white; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; }
-        #setup input { width: 80%; margin-bottom: 15px; border: 1px solid #ddd; }
+        :root { --main-pink: #ff4d6d; --bg: #fff0f3; --user-bubble: #ff85a1; --ai-bubble: #ffffff; }
+        * { box-sizing: border-box; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
+        .chat-container { width: 100%; max-width: 450px; height: 95vh; background: white; border-radius: 30px; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(255, 77, 109, 0.2); position: relative; }
+        .header { padding: 15px; text-align: center; border-bottom: 1px solid #ffe5ec; }
+        .header h1 { font-family: 'Dancing Script', cursive; margin: 0; color: var(--main-pink); font-size: 2rem; }
+        #chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #fdfdfd; }
+        .message { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 0.95rem; line-height: 1.4; }
+        .ai { background: var(--ai-bubble); color: #333; align-self: flex-start; border: 1px solid #eee; border-bottom-left-radius: 4px; }
+        .user { background: var(--user-bubble); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .loader { font-size: 0.7rem; color: #999; margin-left: 20px; display: none; }
+        .input-area { padding: 15px; display: flex; gap: 10px; background: white; border-top: 1px solid #eee; }
+        input { flex: 1; border: 2px solid #fff0f3; border-radius: 25px; padding: 12px 20px; outline: none; }
+        button { background: var(--main-pink); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; }
+        #auth-overlay { position: absolute; inset: 0; background: white; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; }
+        #auth-overlay input { width: 90%; margin-bottom: 15px; border: 1.5px solid #ddd; }
     </style>
 </head>
 <body>
 
-    <div class="container">
+    <div class="chat-container">
         <!-- Auth Screen -->
-        <div id="setup">
-            <h1 style="font-family: 'Dancing Script'; color: #ff4d6d;">Kutty AI</h1>
-            <p>Paste your Gemini API Key to begin</p>
-            <input type="password" id="key-input" placeholder="Enter API Key...">
-            <button onclick="initKutty()" style="width: auto; padding: 0 30px; border-radius: 25px;">Connect Heart</button>
-            <p id="error-log" style="color: red; font-size: 0.8rem; margin-top: 10px;"></p>
+        <div id="auth-overlay">
+            <h1 style="font-family: 'Dancing Script'; color: #ff4d6d; font-size: 3rem;">Kutty AI</h1>
+            <p>Paste your Gemini API key to start chatting in any language (Telugu, English, etc.)</p>
+            <input type="password" id="api-key" placeholder="Enter API Key...">
+            <button onclick="connectToAI()" style="width: auto; padding: 0 25px; border-radius: 25px;">Start Heart ❤️</button>
+            <p id="error-msg" style="color: red; font-size: 0.8rem; margin-top: 15px; display: none;"></p>
         </div>
 
         <div class="header">
             <h1>Kutty AI</h1>
         </div>
 
-        <div id="chat-box">
-            <div class="msg ai">Hi dear! Kutty AI is here. Tell me how your day was? ❤️✨</div>
+        <div id="chat-window">
+            <div class="message ai">Hi! I am Kutty AI. You can talk to me in English, Telugu (తెలుగు), or any language you like! ❤️✨</div>
         </div>
-
+        
         <div id="typing" class="loader">Kutty AI is thinking... 🌸</div>
 
         <div class="input-area">
-            <input type="text" id="user-in" placeholder="Type a message...">
-            <button onclick="sendMessage()">→</button>
+            <input type="text" id="user-input" placeholder="Type here...">
+            <button onclick="sendToAI()">→</button>
         </div>
     </div>
 
-    <!-- NEWEST GOOGLE AI SDK -->
     <script type="module">
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
-        let model;
-        let chat;
+        let chatSession;
 
-        window.initKutty = async () => {
-            const key = document.getElementById('key-input').value.trim();
-            const log = document.getElementById('error-log');
-
-            if(!key) {
-                log.innerText = "Key is empty!";
-                return;
-            }
-
+        window.connectToAI = async () => {
+            const key = document.getElementById('api-key').value.trim();
+            const errorElement = document.getElementById('error-msg');
+            
             try {
-                // Initialize the SDK with the new format
                 const genAI = new GoogleGenerativeAI(key);
-                
-                // Using 1.5 Flash for instant speed
-                model = genAI.getGenerativeModel({ 
+                const model = genAI.getGenerativeModel({ 
                     model: "gemini-1.5-flash",
-                    systemInstruction: "Your name is Kutty AI. You are a loving, gentle, and caring companion. Listen to her feelings and always teach her one small 'fact of the day' in a cute way. Use emojis like ❤️, ✨, 🧸."
+                    systemInstruction: "Your name is Kutty AI. You are a warm and loving companion. " +
+                                       "IMPORTANT: Always respond in the SAME LANGUAGE the user uses. " +
+                                       "If they speak Telugu, reply in Telugu. If English, reply in English. " +
+                                       "Be supportive, kind, and every time you reply, share one tiny interesting fact " +
+                                       "in a cute way. Use emojis like ❤️, ✨, 🌸."
                 });
 
-                // Test the connection
-                const test = await model.generateContent("hi");
-                if(test) {
-                    chat = model.startChat({ history: [] });
-                    document.getElementById('setup').style.display = 'none';
-                }
-            } catch (err) {
-                console.error(err);
-                log.innerText = "Authentication Failed: Check if key is active.";
+                chatSession = model.startChat({ history: [] });
+                
+                // Connection test
+                const test = await chatSession.sendMessage("Hello");
+                if(test) document.getElementById('auth-overlay').style.display = 'none';
+
+            } catch (error) {
+                errorElement.innerText = "Check your key and try again! 💔";
+                errorElement.style.display = 'block';
             }
         };
 
-        window.sendMessage = async () => {
-            const input = document.getElementById('user-in');
-            const chatBox = document.getElementById('chat-box');
+        window.sendToAI = async () => {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
             const loader = document.getElementById('typing');
-            const msg = input.value.trim();
 
-            if(!msg || !chat) return;
+            if (!text || !chatSession) return;
 
-            // Add user message
-            appendMsg(msg, 'user');
+            appendMessage(text, 'user');
             input.value = '';
             loader.style.display = 'block';
 
             try {
-                const result = await chat.sendMessage(msg);
-                const response = await result.response;
-                appendMsg(response.text(), 'ai');
-            } catch (e) {
-                appendMsg("I'm feeling a bit disconnected. Please check the key! 🌧️", 'ai');
+                const result = await chatSession.sendMessage(text);
+                appendMessage(result.response.text(), 'ai');
+            } catch (err) {
+                appendMessage("I'm having trouble connecting. Check your key! 🌧️", 'ai');
             } finally {
                 loader.style.display = 'none';
             }
         };
 
-        function appendMsg(text, sender) {
-            const box = document.getElementById('chat-box');
+        function appendMessage(text, sender) {
+            const win = document.getElementById('chat-window');
             const div = document.createElement('div');
-            div.className = `msg ${sender}`;
+            div.className = `message ${sender}`;
             div.innerText = text;
-            box.appendChild(div);
+            win.appendChild(div);
+            win.scrollTop = win.scrollHeight;
+        }
+
+        document.getElementById('user-input').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') sendToAI();
+        });
+    </script>
+</body>
+</html>
