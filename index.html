@@ -1,1 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kutty AI | Always With You</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
+    <style>
+        :root { --bg: #fff5f7; --ai-chat: #ffffff; --user-chat: #ff85a1; --accent: #ff4d6d; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        .chat-card { width: 100%; max-width: 420px; height: 90vh; background: white; border-radius: 30px; box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2); display: flex; flex-direction: column; position: relative; overflow: hidden; }
+        .chat-header { padding: 20px; text-align: center; background: white; border-bottom: 1px solid #ffe5ec; }
+        .chat-header h1 { font-family: 'Dancing Script', cursive; margin: 0; color: var(--accent); font-size: 2.2rem; }
+        #chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; scroll-behavior: smooth; }
+        .msg { max-width: 80%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; animation: pop 0.3s ease; }
+        .ai-msg { background: #fdf2f4; color: #444; align-self: flex-start; border-bottom-left-radius: 4px; }
+        .user-msg { background: var(--user-chat); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+        .input-group { padding: 20px; display: flex; gap: 10px; background: white; }
+        input { flex: 1; border: 2px solid #fff0f3; border-radius: 50px; padding: 12px 20px; outline: none; }
+        button { background: var(--accent); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; }
+        #key-screen { position: absolute; inset: 0; background: white; z-index: 10; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; }
+        @keyframes pop { from { opacity: 0; transform: scale(0.9); } to { opacity: 1; transform: scale(1); } }
+    </style>
+</head>
+<body>
 
+    <div class="chat-card">
+        <div id="key-screen">
+            <h1>Welcome to Kutty AI</h1>
+            <p>Enter your secret key to start our daily journey.</p>
+            <input type="password" id="api-key" placeholder="Paste Gemini Key...">
+            <br>
+            <button onclick="initAI()" style="width: auto; padding: 0 30px; border-radius: 25px;">Wake Up Kutty AI</button>
+        </div>
+
+        <div class="chat-header">
+            <h1>Kutty AI</h1>
+            <p>Listen. Learn. Love. ✨</p>
+        </div>
+
+        <div id="chat-window">
+            <div class="msg ai-msg">Hi! I am your Kutty AI. ❤️ I'm here to listen to your heart and share something beautiful with you every day. How was your day?</div>
+        </div>
+
+        <div class="input-group">
+            <input type="text" id="user-input" placeholder="Tell Kutty AI anything...">
+            <button onclick="sendChat()">→</button>
+        </div>
+    </div>
+
+    <script type="module">
+        import { GoogleGenerativeAI } from "https://esm.run/@google/genai";
+        let chatSession;
+
+        window.onload = () => {
+            const key = new URLSearchParams(window.location.search).get('key');
+            if (key) { document.getElementById('api-key').value = key; initAI(); }
+        };
+
+        window.initAI = async () => {
+            const key = document.getElementById('api-key').value;
+            if (!key) return;
+            try {
+                const genAI = new GoogleGenerativeAI(key);
+                const model = genAI.getGenerativeModel({ 
+                    model: "gemini-1.5-flash",
+                    systemInstruction: "Your name is Kutty AI. You are a warm, supportive, and loving companion for a girl. 1. Listen deeply to her feelings. 2. Every conversation, try to teach her one interesting 'new thing' or fact in a cute way. 3. Use words like 'dear', 'lovely', and 'sweetheart'. 4. Use emojis like 🌸, ✨, 🧸, and ❤️. Always reply automatically and be her safe space."
+                });
+                chatSession = model.startChat({ history: [] });
+                document.getElementById('key-screen').style.display = 'none';
+            } catch (err) { alert("Invalid Key 💔"); }
+        };
+
+        window.sendChat = async () => {
+            const input = document.getElementById('user-input');
+            const text = input.value.trim();
+            if (!text || !chatSession) return;
+
+            addBubble(text, 'user-msg');
+            input.value = '';
+
+            try {
+                const result = await chatSession.sendMessage(text);
+                addBubble(result.response.text(), 'ai-msg');
+            } catch (e) { addBubble("Kutty AI is sleeping. Check connection! 🌧️", 'ai-msg'); }
+        };
+
+        function addBubble(text, type) {
+            const win = document.getElementById('chat-window');
+            const div = document.createElement('div');
+            div.className = `msg ${type}`;
+            div.innerText = text;
+            win.appendChild(div);
+            win.scrollTop = win.scrollHeight;
+        }
+    </script>
+</body>
+</html>
