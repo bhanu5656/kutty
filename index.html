@@ -3,37 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kutty AI | Multilingual Friend</title>
+    <title>Kutty AI | Multilingual</title>
     <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@700&family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
     <style>
-        :root { --main-pink: #ff4d6d; --bg: #fff0f3; --user-bubble: #ff85a1; --ai-bubble: #ffffff; }
+        :root { --accent: #ff4d6d; --bg: #fff5f7; --user-color: #ff85a1; }
         * { box-sizing: border-box; }
-        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden; }
-        .chat-container { width: 100%; max-width: 450px; height: 95vh; background: white; border-radius: 30px; display: flex; flex-direction: column; box-shadow: 0 10px 40px rgba(255, 77, 109, 0.2); position: relative; }
-        .header { padding: 15px; text-align: center; border-bottom: 1px solid #ffe5ec; }
-        .header h1 { font-family: 'Dancing Script', cursive; margin: 0; color: var(--main-pink); font-size: 2rem; }
-        #chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; background: #fdfdfd; }
-        .message { max-width: 85%; padding: 12px 16px; border-radius: 20px; font-size: 0.95rem; line-height: 1.4; }
-        .ai { background: var(--ai-bubble); color: #333; align-self: flex-start; border: 1px solid #eee; border-bottom-left-radius: 4px; }
-        .user { background: var(--user-bubble); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
-        .loader { font-size: 0.7rem; color: #999; margin-left: 20px; display: none; }
-        .input-area { padding: 15px; display: flex; gap: 10px; background: white; border-top: 1px solid #eee; }
-        input { flex: 1; border: 2px solid #fff0f3; border-radius: 25px; padding: 12px 20px; outline: none; }
-        button { background: var(--main-pink); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; }
-        #auth-overlay { position: absolute; inset: 0; background: white; z-index: 1000; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 30px; text-align: center; }
-        #auth-overlay input { width: 90%; margin-bottom: 15px; border: 1.5px solid #ddd; }
+        body { font-family: 'Poppins', sans-serif; background: var(--bg); margin: 0; display: flex; justify-content: center; align-items: center; height: 100vh; }
+        
+        .chat-card { width: 100%; max-width: 450px; height: 90vh; background: white; border-radius: 30px; display: flex; flex-direction: column; box-shadow: 0 15px 35px rgba(255, 77, 109, 0.2); position: relative; overflow: hidden; }
+        
+        .header { padding: 20px; text-align: center; border-bottom: 1px solid #ffe5ec; background: white; }
+        .header h1 { font-family: 'Dancing Script', cursive; margin: 0; color: var(--accent); font-size: 2.2rem; }
+
+        #chat-window { flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 12px; background: #fafafa; }
+        
+        .msg { max-width: 80%; padding: 12px 18px; border-radius: 20px; font-size: 0.95rem; line-height: 1.5; animation: fadeIn 0.3s ease; }
+        .ai { background: white; color: #444; align-self: flex-start; border: 1px solid #eee; border-bottom-left-radius: 4px; }
+        .user { background: var(--user-color); color: white; align-self: flex-end; border-bottom-right-radius: 4px; }
+
+        .loader { font-size: 0.8rem; color: #999; padding: 10px 20px; display: none; }
+
+        .input-group { padding: 20px; display: flex; gap: 10px; background: white; border-top: 1px solid #eee; }
+        input { flex: 1; border: 2px solid #fff0f3; border-radius: 50px; padding: 12px 20px; outline: none; }
+        button { background: var(--accent); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; cursor: pointer; }
+
+        /* Auth Screen */
+        #setup-screen { position: absolute; inset: 0; background: white; z-index: 100; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; text-align: center; }
+        #setup-screen input { width: 100%; margin-bottom: 15px; border: 1px solid #ddd; }
+        
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-    <div class="chat-container">
-        <!-- Auth Screen -->
-        <div id="auth-overlay">
-            <h1 style="font-family: 'Dancing Script'; color: #ff4d6d; font-size: 3rem;">Kutty AI</h1>
-            <p>Paste your Gemini API key to start chatting in any language (Telugu, English, etc.)</p>
-            <input type="password" id="api-key" placeholder="Enter API Key...">
-            <button onclick="connectToAI()" style="width: auto; padding: 0 25px; border-radius: 25px;">Start Heart ❤️</button>
-            <p id="error-msg" style="color: red; font-size: 0.8rem; margin-top: 15px; display: none;"></p>
+    <div class="chat-card">
+        <!-- New API Setup Screen -->
+        <div id="setup-screen">
+            <h1 style="font-family: 'Dancing Script'; color: var(--accent);">Kutty AI</h1>
+            <p>Welcome! Please paste your API key to connect our hearts.</p>
+            <input type="password" id="api-key-field" placeholder="Paste your API key here...">
+            <button onclick="initializeKutty()" style="width: auto; padding: 0 30px; border-radius: 25px;">Connect AI ❤️</button>
+            <p id="error-msg" style="color: red; font-size: 0.8rem; margin-top: 10px;"></p>
         </div>
 
         <div class="header">
@@ -41,81 +51,92 @@
         </div>
 
         <div id="chat-window">
-            <div class="message ai">Hi! I am Kutty AI. You can talk to me in English, Telugu (తెలుగు), or any language you like! ❤️✨</div>
+            <div class="msg ai">Hello! I am your Kutty AI. I can understand Telugu, Hindi, and English. How can I help you today? ❤️✨</div>
         </div>
-        
-        <div id="typing" class="loader">Kutty AI is thinking... 🌸</div>
 
-        <div class="input-area">
-            <input type="text" id="user-input" placeholder="Type here...">
-            <button onclick="sendToAI()">→</button>
+        <div id="loading" class="loader">Kutty AI is typing... 🌸</div>
+
+        <div class="input-group">
+            <input type="text" id="user-input" placeholder="Type in any language...">
+            <button onclick="sendMessage()">→</button>
         </div>
     </div>
 
+    <!-- Latest SDK Import -->
     <script type="module">
         import { GoogleGenerativeAI } from "https://esm.run/@google/generative-ai";
 
         let chatSession;
 
-        window.connectToAI = async () => {
-            const key = document.getElementById('api-key').value.trim();
-            const errorElement = document.getElementById('error-msg');
-            
+        window.initializeKutty = async () => {
+            const key = document.getElementById('api-key-field').value.trim();
+            const errorArea = document.getElementById('error-msg');
+
+            if(!key) return alert("Please paste the key!");
+
             try {
                 const genAI = new GoogleGenerativeAI(key);
+                
+                // Using Gemini 1.5 Flash (Newest format)
                 const model = genAI.getGenerativeModel({ 
                     model: "gemini-1.5-flash",
-                    systemInstruction: "Your name is Kutty AI. You are a warm and loving companion. " +
-                                       "IMPORTANT: Always respond in the SAME LANGUAGE the user uses. " +
-                                       "If they speak Telugu, reply in Telugu. If English, reply in English. " +
-                                       "Be supportive, kind, and every time you reply, share one tiny interesting fact " +
-                                       "in a cute way. Use emojis like ❤️, ✨, 🌸."
+                    systemInstruction: "Your name is Kutty AI. You are a loving, caring companion. " +
+                                       "You must speak to the user in the language they use. " +
+                                       "If they speak Telugu, reply in Telugu. If Hindi, reply in Hindi. " +
+                                       "Always be supportive and every time you reply, share one small fact about the world in a cute way. " +
+                                       "Use emojis like ❤️, ✨, 🌸."
                 });
 
-                chatSession = model.startChat({ history: [] });
-                
-                // Connection test
-                const test = await chatSession.sendMessage("Hello");
-                if(test) document.getElementById('auth-overlay').style.display = 'none';
+                chatSession = model.startChat({
+                    history: [],
+                });
 
-            } catch (error) {
-                errorElement.innerText = "Check your key and try again! 💔";
-                errorElement.style.display = 'block';
+                // Connection Check
+                const check = await chatSession.sendMessage("Hi");
+                if(check) {
+                    document.getElementById('setup-screen').style.display = 'none';
+                }
+            } catch (e) {
+                console.error(e);
+                errorArea.innerText = "Authentication Error: This key might be invalid or restricted. Please check Google AI Studio.";
             }
         };
 
-        window.sendToAI = async () => {
+        window.sendMessage = async () => {
             const input = document.getElementById('user-input');
+            const chatWindow = document.getElementById('chat-window');
+            const loader = document.getElementById('loading');
             const text = input.value.trim();
-            const loader = document.getElementById('typing');
 
             if (!text || !chatSession) return;
 
+            // Add user message
             appendMessage(text, 'user');
             input.value = '';
             loader.style.display = 'block';
 
             try {
                 const result = await chatSession.sendMessage(text);
-                appendMessage(result.response.text(), 'ai');
+                const response = await result.response;
+                appendMessage(response.text(), 'ai');
             } catch (err) {
-                appendMessage("I'm having trouble connecting. Check your key! 🌧️", 'ai');
+                appendMessage("I'm having a little trouble connecting. Please check your key! 🌧️", 'ai');
             } finally {
                 loader.style.display = 'none';
             }
         };
 
         function appendMessage(text, sender) {
-            const win = document.getElementById('chat-window');
+            const box = document.getElementById('chat-window');
             const div = document.createElement('div');
-            div.className = `message ${sender}`;
+            div.className = `msg ${sender}`;
             div.innerText = text;
-            win.appendChild(div);
-            win.scrollTop = win.scrollHeight;
+            box.appendChild(div);
+            box.scrollTop = box.scrollHeight;
         }
 
         document.getElementById('user-input').addEventListener('keypress', (e) => {
-            if (e.key === 'Enter') sendToAI();
+            if (e.key === 'Enter') sendMessage();
         });
     </script>
 </body>
